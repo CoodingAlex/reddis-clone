@@ -15,10 +15,9 @@ int main() {
   // when running tests.
   printf("Logs from your program will appear here!\n");
 
-  Uncomment this block to pass the first stage
+  // Uncomment this block to pass the first stage
 
-      int server_fd,
-      client_addr_len;
+  int server_fd, client_addr_len;
   struct sockaddr_in client_addr;
 
   server_fd = socket(AF_INET, SOCK_STREAM, 0);
