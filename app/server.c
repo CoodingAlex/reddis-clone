@@ -19,13 +19,14 @@ void func(int connfd) {
     bzero(buff, MAX);
 
     read(connfd, buff, sizeof(buff));
-    printf("From client: %s\t To client : ", buff);
+    printf("ONE %s \n ", buff);
     bzero(buff, MAX);
     n = 0;
 
     // copy the server message into the buffer
     // while ((buff[n++] = getchar()) != '\n')
     //   ;
+
 
     strcpy(buff, "+PONG\r\n");
 
