@@ -7,6 +7,37 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#define MAX 80 
+
+
+// function to handle in coming messages and chet bewteen the client and the server
+void func(int connfd) {
+  char buff[MAX];
+  int n;
+
+  for (;;) {
+    bzero(buff, MAX);
+
+    read(connfd, buff, sizeof(buff));
+    printf("From client: %s\t To client : ", buff);
+    bzero(buff, MAX);
+    n = 0;
+
+    // copy the server message into the buffer
+    // while ((buff[n++] = getchar()) != '\n')
+    //   ;
+
+    strcpy(buff, "+PONG\r\n");
+
+    write(connfd, buff, strlen(buff));
+
+    if (strncmp("exit", buff, 4) == 0) {
+      printf("Server exit...\n");
+      break;
+    }
+  }
+}
+
 int main() {
   // Disable output buffering
   setbuf(stdout, NULL);
@@ -17,7 +48,7 @@ int main() {
 
   // Uncomment this block to pass the first stage
 
-  int server_fd, client_addr_len;
+  int server_fd, client_addr_len, connfd;
   struct sockaddr_in client_addr;
 
   server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -30,7 +61,7 @@ int main() {
   // ensures that we don't run into 'Address already in use' errors
   int reuse = 1;
   if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse)) <
-      0) {
+    0) {
     printf("SO_REUSEPORT failed: %s \n", strerror(errno));
     return 1;
   }
@@ -41,7 +72,7 @@ int main() {
       .sin_addr = {htonl(INADDR_ANY)},
   };
 
-  if (bind(server_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) != 0) {
+  if (bind(server_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) != 0) {
     printf("Bind failed: %s \n", strerror(errno));
     return 1;
   }
@@ -55,8 +86,15 @@ int main() {
   printf("Waiting for a client to connect...\n");
   client_addr_len = sizeof(client_addr);
 
-  accept(server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
-  printf("Client connected\n");
+  connfd = accept(server_fd, (struct sockaddr*)&client_addr, &client_addr_len);
+  if (connfd < 0) {
+    printf("server accept failed...\n");
+    exit(0);
+  }
+  else
+    printf("server accept the client...\n");
+  func(connfd);
+
 
   close(server_fd);
 
